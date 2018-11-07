@@ -238,8 +238,19 @@ int linearTMC2130Stepper::limit()
 }
 byte linearTMC2130Stepper::move()
 {
-	bool leftLimitHit = ((shaftDir == false) && (limit() == LEFTLIMIT));
-	bool rightLimitHit ((shaftDir == true) && (limit() == RIGHTLIMIT));//Shaft direction return is reverse to input, dont ask
+	byte moveLimit = limit();
+	bool leftLimitHit = ((shaftDir == true) && (moveLimit == LEFTLIMIT));
+	bool leftLimitHitStop = ((shaftDir == false) && (moveLimit == LEFTLIMIT));
+	bool rightLimitHit ((shaftDir == true) && (moveLimit == RIGHTLIMIT));
+	bool rightLimitHitGo ((shaftDir == false) && (moveLimit == RIGHTLIMIT));
+//	Serial.print(" leftLimitHit::");
+//	Serial.print(leftLimitHit);
+//	Serial.print(" leftLimitHitStop::");
+//	Serial.print(leftLimitHitStop);
+//	Serial.print(" rightLimitHit::");
+//	Serial.print(rightLimitHit);
+//	Serial.print("rightlimitHitGo::");
+//	Serial.println(rightLimitHitGo);
 	
 	if(leftLimitHit && (intStepsToMove > 0))//Hit left limit,  stop motion
 	{	
@@ -254,12 +265,32 @@ byte linearTMC2130Stepper::move()
 		currentPos = -25;
 		moveReturnVar = 1;
 	}
+	else if(rightLimitHitGo && (intStepsToMove > 0))//Hit left limit,  stop motion
+	{	
+//		Serial.println("Hit left,  continue moving");
+		//intStepsToMove = 0;
+		digitalWrite(copyStep_pin, HIGH);
+		delayMicroseconds(2);
+		digitalWrite(copyStep_pin, LOW);
+		delayMicroseconds(2);
+		//		Serial.println(intStepsToMove);
+		intStepsToMove --;
+		currentPos = 25;
+		moveReturnVar = 1;
+	}
 	else if(rightLimitHit && (intStepsToMove > 0))//Hit right limit,  stop motion
 	{	
 //		Serial.println("Hit right , STOP!!");
 		intStepsToMove = 0;
 		currentPos = 25;
-		moveReturnVar = 4;
+		moveReturnVar = 2;
+	}
+	else if(leftLimitHitStop && (intStepsToMove > 0))//Hit right limit,  stop motion
+	{	
+//		Serial.println("Hit right , STOP!!");
+		intStepsToMove = 0;
+		currentPos = -25;
+		moveReturnVar = 3;
 	}
 	//	Serial.println(intStepsToMove);
 	else if(intStepsToMove > 0 && ((!leftLimitHit) || (!rightLimitHit)))
