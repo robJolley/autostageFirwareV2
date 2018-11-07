@@ -18,4 +18,16 @@ slogan = tk.Button(frame,
                    command=write_slogan)
 slogan.pack(side=tk.LEFT)
 
+button.pack(side=tk.LEFT)
+slogan = tk.Button(frame,
+                   text="Linear + 10",
+                   command=write_linear10)
+slogan.pack(side=tk.LEFT)
+
+button.pack(side=tk.LEFT)
+slogan = tk.Button(frame,
+                   text="Angular_10",
+                   command=write_angular10)
+slogan.pack(side=tk.LEFT)
+
 root.mainloop()

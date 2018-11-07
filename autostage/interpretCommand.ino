@@ -5,7 +5,7 @@ serialReturn interpretCommand(String inputString)
 	serialReturn returnData;//Struct to return comand respone including movement
 	int linearMove, angularMove;
 	char inputChar[4];
-//	Serial.println(inputString);
+	//	Serial.println(inputString);
 	
 	
 	
@@ -16,7 +16,7 @@ serialReturn interpretCommand(String inputString)
 		returnData.responce = HB;
 		returnData.lin = 0;
 		returnData.ang = 0;
-//		Serial.println("Got into HB");
+		//		Serial.println("Got into HB");
 	}
 	if(inputString =="help" || inputString =="Help")
 	{
@@ -28,23 +28,32 @@ serialReturn interpretCommand(String inputString)
 	
     if(inputString.substring(0,8) == "{btgoto ")
 	{
-//		Serial.println("4-4 substring_____");
-//		Serial.println(inputString.substring(0,8));
+		//		Serial.println("4-4 substring_____");
+		//		Serial.println(inputString.substring(0,8));
 		if(inputString.endsWith("}"))
 		{
-			linearMove = (inputString.substring(8,11).toInt());
-			angularMove =(inputString.substring(12,15).toInt());
-//			Serial.print("Linear move: ");
-//			Serial.print(linearMove);
-//			Serial.print("  Angular move: ");
-//			Serial.println(angularMove);
+			linearMove = (inputString.substring(8,11).toInt());   
+			angularMove =(inputString.substring(11,14).toInt());
+			stringComplete = true;
+			//Serial.print("Linear move: ");
+			//Serial.print(linearMove);
+			//Serial.print("  Angular move: ");
+			//Serial.println(angularMove);
 			
 			if ((linearMove >= 100) && (angularMove >= 100) && linearMove !=800 && angularMove !=800)//Add 100 to desired value in order to ensure numeric value sent
 			{
-				returnData.move = false;
+				returnData.move = true;
 				returnData.responce = GOTOACK;
-				returnData.lin = linearMove;
-				returnData.ang = angularMove;
+				if(linearMove  == 100)
+				{
+					linearMove = 0;
+				}
+				else
+				{
+					returnData.lin = linearMove-150;//in order to account for direction?
+				}
+				returnData.ang = angularMove-100;//-180 to account for direction?
+				
 			}
 			else
 			{
@@ -61,6 +70,8 @@ serialReturn interpretCommand(String inputString)
 			returnData.lin = 0;
 			returnData.ang = 0;
 		}
+//		Serial.print("returnData.lin::");
+//		Serial.println(returnData.lin);
 	}
 	
 	if(inputString == "{btredy}")//Ready??
@@ -91,7 +102,7 @@ serialReturn interpretCommand(String inputString)
 	{
 		returnData.move = false;
 		returnData.responce = INFO;
-//		Serial.println("Got to BTINFO");
+		//		Serial.println("Got to BTINFO");
 		returnData.lin = 0;
 		returnData.ang = 0;
 	}
@@ -99,7 +110,7 @@ serialReturn interpretCommand(String inputString)
 	if(inputString.substring(0,8) == "{btwtsn ")//Serial number write
 	
 	{
-	if (inputString.endsWith("}"))
+		if (inputString.endsWith("}"))
 		{
 			EEPROM.write(0, inputString[8]);//Write directy to EEPROM here rather than exit as it is a very infrequent activity
 			EEPROM.write(1, inputString[9]);

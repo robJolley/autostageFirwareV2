@@ -4,20 +4,25 @@
 #include <TMC2130Stepper.h>
 
 #ifndef MOTIONTMC2130STEPPER_H
-#define MOTIONTMC2130STEPPER_H
-
-#define STEPS 200
-#define LEADSCREW_PITCH 2.54
-#define UNKNOWN_POSITION 400
-#include "globalAutostageVars.h"
-
-class motionTMC2130Stepper : public TMC2130Stepper{
-	public:
+	#define MOTIONTMC2130STEPPER_H
 	
-	motionTMC2130Stepper(int enable_pin, int dir_pin, int step_pin,int cs_pin)
-    :TMC2130Stepper(enable_pin, dir_pin, step_pin, cs_pin)
-      {  
-      }
+	#define STEPS 400
+	#define LEADSCREW_PITCH 2.54
+	#define UNKNOWN_POSITION 400
+	#include "globalAutostageVars.h"
+	
+	class motionTMC2130Stepper : public TMC2130Stepper{
+		
+		public:
+		
+		motionTMC2130Stepper(int enable_pin, int dir_pin, int step_pin,int cs_pin)
+		:TMC2130Stepper(enable_pin, dir_pin, step_pin, cs_pin)
+		{
+			copyEnable_pin = enable_pin;
+			copyDir_pin = dir_pin; 
+			copyStep_pin = step_pin;
+			copyCs_pin = cs_pin;
+		}
 		int initilise(int,int,int);//To be used in setup code section,  performs begin, microsteps,SilentStepStick & stelthChop
 		int initilise();
 		int home();//move to home position returns 1 when complete?
@@ -30,49 +35,54 @@ class motionTMC2130Stepper : public TMC2130Stepper{
 		int copyStep_pin;
 		int copyCs_pin;
 		int currentPos;
-		int stepsToMove;
+		float stepsToMove;
+		long intStepsToMove;
 		int moveang;
 		int moveReturnVar;
-
-};
-
-class angularTMC2130Stepper : public motionTMC2130Stepper{
+		bool shaftDir = false;
+		
+	};
+	
+	class angularTMC2130Stepper : public motionTMC2130Stepper{
 		public:
-   
+		
 		angularTMC2130Stepper(int enable_pin, int dir_pin, int step_pin,int cs_pin, int index_pin)
-				:motionTMC2130Stepper(enable_pin, dir_pin, step_pin, cs_pin),index_pin(index_pin)
-				{
-				}
+		:motionTMC2130Stepper(enable_pin, dir_pin, step_pin, cs_pin),index_pin(index_pin)
+		{
+		}
 		int index();//to return 1 when indexer microswitch tripped
         int initilise(int,int,int);
         int initilise();
         float moveRelative(int);
         float moveAbsolute(int);
-        int move();
+        byte move();
         int home();
- //       int position();        
+		//       int position();        
 		private:				
 		int index_pin;
-};
-
-
-class linearTMC2130Stepper : public motionTMC2130Stepper{
+	};
+	
+	
+	class linearTMC2130Stepper : public motionTMC2130Stepper{
 		public:
 		linearTMC2130Stepper(int enable_pin, int dir_pin, int step_pin,int cs_pin, int limit1_pin, int limit2_pin)
-						:motionTMC2130Stepper(enable_pin, dir_pin, step_pin, cs_pin),limit1_pin(limit1_pin), limit2_pin(limit2_pin)
-						{
-						}					
+		:motionTMC2130Stepper(enable_pin, dir_pin, step_pin, cs_pin),limit1_pin(limit1_pin), limit2_pin(limit2_pin)
+		{
+		}					
 	    int initilise(int,int,int);
         int initilise();
         float moveRelative(int);
         float moveAbsolute(int);
 		int limit();
-        int move();
-        int home();
-//        int position();
-			private:
-				int limit1_pin;
-				int limit2_pin;
-
-};
+        byte move();
+        byte home();
+		//        int position();
+		private:
+		int limit1_pin;
+		int limit2_pin;
+		bool leftStop;
+		bool rightStop;
+		bool ttHome;
+		
+	};
 #endif /* MOTIONTMC2120STEPPER_H */
