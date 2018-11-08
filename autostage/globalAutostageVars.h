@@ -39,19 +39,25 @@
 	#define HELP 13
 	#define GOTOBSY 14
 	#define INFO 15
+	#define VIBACK 16
 	#define ANGULAR_HOME
 	#define LINEAR_HOME
+	#define RED 3
+	#define GREEN 2
+	#define ORANGE 1
+	#define NO_COLOUR 0
 	
 	bool dir = true;
 	byte val = 0;
 	bool switcher = false;
 	bool inmove = false;
+	byte colour = ORANGE;
 	long previousMillis;
 	long interval = 1000;
 	struct serialReturn //Return for interpretCommand,  telling whether more required or not,  the coords to move to and responce code to be sent back to eyepass
 	{
 		bool move;
-		int responce,lin,ang;
+		int responce,lin,ang,vib;
 	};
 	int serialResponder(int);
 	

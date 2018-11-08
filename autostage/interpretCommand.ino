@@ -3,7 +3,7 @@
 serialReturn interpretCommand(String inputString)
 {
 	serialReturn returnData;//Struct to return comand respone including movement
-	int linearMove, angularMove;
+	int linearMove, angularMove, vibPWM;
 	char inputChar[4];
 	//	Serial.println(inputString);
 	
@@ -14,6 +14,7 @@ serialReturn interpretCommand(String inputString)
 	{
 		returnData.move = false;
 		returnData.responce = HB;
+		returnData.vib = 0;
 		returnData.lin = 0;
 		returnData.ang = 0;
 		//		Serial.println("Got into HB");
@@ -22,6 +23,7 @@ serialReturn interpretCommand(String inputString)
 	{
 		returnData.move = false;
 		returnData.responce = HELP;
+		returnData.vib = 0;
 		returnData.lin = 0;
 		returnData.ang = 0;
 	}
@@ -59,6 +61,7 @@ serialReturn interpretCommand(String inputString)
 			{
 				returnData.move = false;
 				returnData.responce = GOTOSWERR;
+				returnData.vib = 0;
 				returnData.lin = 0;
 				returnData.ang = 0;
 			}
@@ -67,6 +70,7 @@ serialReturn interpretCommand(String inputString)
 		{
 			returnData.move = false;
 			returnData.responce = GOTOSWERR;
+			returnData.vib = 0;
 			returnData.lin = 0;
 			returnData.ang = 0;
 		}
@@ -74,10 +78,53 @@ serialReturn interpretCommand(String inputString)
 //		Serial.println(returnData.lin);
 	}
 	
+// vib
+    if(inputString.substring(0,7) == "{btvib ")
+	{
+
+		if(inputString.endsWith("}"))
+		{
+			vibPWM = (inputString.substring(7,10).toInt());   
+			stringComplete = true;
+			//Serial.print("Linear move: ");
+			//Serial.print(linearMove);
+			//Serial.print("  Angular move: ");
+			//Serial.println(angularMove);
+			
+			if ((vibPWM >= 100)  && (vibPWM <=355))//Add 100 to desired value in order to ensure numeric value sent
+			{
+				returnData.move = false;
+				returnData.responce = VIBACK;
+				returnData.vib = vibPWM;
+				returnData.lin = 0;
+				returnData.ang = 0;
+			}
+			else
+			{
+
+				returnData.move = false;
+				returnData.responce = GOTOSWERR;
+				returnData.vib = 0;
+				returnData.lin = 0;
+				returnData.ang = 0;
+				
+
+			}
+		}
+		else
+		{
+
+		}
+//		Serial.print("returnData.lin::");
+//		Serial.println(returnData.lin);
+	}
+// end of vib	
+	
 	if(inputString == "{btredy}")//Ready??
 	{
 		returnData.move = false;
 		returnData.responce = READYACK;
+		returnData.vib = 0;
 		returnData.lin = 0;
 		returnData.ang = 0;
 	}
@@ -86,6 +133,7 @@ serialReturn interpretCommand(String inputString)
 	{
 		returnData.move = false;
 		returnData.responce = HOMEACK;
+		returnData.vib = 0;
 		returnData.lin = 0;
 		returnData.ang = 0;
 	}
@@ -94,6 +142,7 @@ serialReturn interpretCommand(String inputString)
 	{
 		returnData.move = false;
 		returnData.responce = EXTENDACK;
+		returnData.vib = 0;
 		returnData.lin = 0;
 		returnData.ang = 0;
 	}
@@ -103,6 +152,7 @@ serialReturn interpretCommand(String inputString)
 		returnData.move = false;
 		returnData.responce = INFO;
 		//		Serial.println("Got to BTINFO");
+		returnData.vib = 0;
 		returnData.lin = 0;
 		returnData.ang = 0;
 	}
@@ -120,6 +170,7 @@ serialReturn interpretCommand(String inputString)
 			EEPROM.write(5, inputString[13]);
 			returnData.move = false;
 			returnData.responce = SNACK;
+			returnData.vib = 0;
 			returnData.lin = 0;
 			returnData.ang = 0;
 		}
@@ -127,6 +178,7 @@ serialReturn interpretCommand(String inputString)
 		{
 			returnData.move = false;
 			returnData.responce = NORESPONCE_CLEAR;
+			returnData.vib = 0;
 			returnData.lin = 0;
 			returnData.ang = 0;
 		}
@@ -148,6 +200,7 @@ serialReturn interpretCommand(String inputString)
 			}
 			
 			returnData.move = false;
+			returnData.vib = 0;
 			returnData.lin = 0;
 			returnData.ang = 0;
 			

@@ -87,6 +87,13 @@ int serialResponder(int responce)
 			Serial.write('\n');
 			break;
 		}
+		case VIBACK:
+		{
+			Serial.write("<btvib ack>");
+			Serial.write('\n');
+			break;
+		}
+		
 		default :
 		{
 			Serial.write("<?>");

@@ -20,12 +20,14 @@ void setup()
 {
 	Serial.begin(9600);
 	Serial.setTimeout(50);// Set the minimum timeout to 50ms to slow hangups,,  may be ideal to decrease this further.....
+	pinMode(MTR_DRV, OUTPUT);  
 	DDRC = DDRC & B11110011;// Mask to set pin A2 and A3 to input,  ignoring others used.
 	PORTC = PORTC & B11110011;
 	PORTC = PORTC | B00001100;
 	inputString.reserve(16);
 	TMC2130_TT.initilise();//Initilise with default settings
 	TMC2130_LS.initilise();//Initilise with default settings
+	indicatorLight(ORANGE);
 	delay(50);
 	TMC2130_LS.microsteps(255);//  Increasing speed to move to home position.
 	TMC2130_TT.microsteps(255);
@@ -48,6 +50,7 @@ void setup()
     digitalWrite(EN_PIN_TT, LOW);
     digitalWrite(EN_PIN_LS, LOW);
 	delayMicroseconds(50);
+	indicatorLight(GREEN);
 }
 
 void loop()
@@ -59,14 +62,15 @@ void loop()
 //	Serial.println(LS_Moving);
 //	Serial.println(" TT_Moving::");
 //	Serial.println(TT_Moving);
-	if (LS_Moving || TT_Moving)//Each return 1 if moving, also will move single step/microstep if steps available to take to desired position
+	if ((LS_Moving || TT_Moving) && (inmove == false))//Each return 1 if moving, also will move single step/microstep if steps available to take to desired position
 	{
 		inmove = true;
-		
+		indicatorLight(ORANGE);
 	}
-	else
+	if((!(LS_Moving || TT_Moving)) && (inmove == true))
 	{
 		inmove = false;
+		indicatorLight(GREEN);
 	}
 	if (stringComplete) 
 	{
@@ -76,10 +80,16 @@ void loop()
 			TMC2130_LS.moveAbsolute(returnedData.lin);
 			TMC2130_TT.moveAbsolute(returnedData.ang);
 			responceToSend = GOTOACK;
+			
 		}
 		else if ((returnedData.move == true) && (returnedData.responce == GOTOACK) && (inmove == true))//Cannot move as aleady moving
 		{
 			responceToSend = GOTOBSY;
+		}
+		else if((returnedData.vib >=100) && (returnedData.responce == VIBACK))
+		{
+				vibEngine((returnedData.vib)-100);
+				responceToSend = VIBACK;
 		}
 		else
 		{
@@ -133,3 +143,35 @@ void serialEvent() {
 
 }
 
+byte indicatorLight(byte colour)
+{
+	if(colour == GREEN)
+	{
+		digitalWrite(GREEN_LED, HIGH);
+		digitalWrite(RED_LED, LOW);
+	}
+	else if(colour == RED)
+	{
+		digitalWrite(GREEN_LED, HIGH);
+		digitalWrite(RED_LED, LOW);
+	}
+	
+	else if(colour == ORANGE)
+	{
+		digitalWrite(GREEN_LED, HIGH);
+		digitalWrite(RED_LED, HIGH);
+	}
+	else
+	{
+		digitalWrite(GREEN_LED, LOW);
+		digitalWrite(RED_LED, LOW);
+	}
+	return colour;
+	
+}
+
+byte vibEngine(byte vibMag)
+	{
+		analogWrite(MTR_DRV, vibMag);
+		return vibMag;
+	}
